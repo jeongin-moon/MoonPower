@@ -1,0 +1,14 @@
+{
+  "randoms_path": "/path/to/pos_xyz_rec_ran_2000X_162_691_303_dex-spring_z_cut_0.1825_0.2725_masked.npy",
+  "mock_data_dir": "/path/to/mock/catalogs",
+  "output_dir": "./results",
+  "field": "dex-spring",
+  "bin_index": 2,
+  "assignment": "cic",
+  "use_overlap_weights": true,
+  "sigma": 0.6,
+  "mcut": 12.3154,
+  "n_mocks": 50,
+  "mesh_spacing": 2.19,
+  "ell_max": 4
+}

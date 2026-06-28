@@ -1,0 +1,2 @@
+include useful_functions.pyx
+recursive-include pk_multipoles *.py

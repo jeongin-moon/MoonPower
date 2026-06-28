@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61", "wheel", "Cython>=0.29", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pk-multipoles"
+version = "0.1.0"
+description = "Deconvolved power spectrum multipoles from discrete tracers on a periodic grid"
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "MIT" }
+authors = [{ name = "OII V-lim collaboration" }]
+dependencies = [
+    "numpy",
+    "scipy",
+    "sympy",
+    "numexpr",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+pk-multipoles = "pk_multipoles.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pk_multipoles*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

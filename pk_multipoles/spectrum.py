@@ -3,7 +3,7 @@ Core multipole power spectrum computation.
 
 Algorithm overview
 ------------------
-1. Deposit tracers and randoms onto a cubic FFT grid (CIC/NGP/TSC).
+1. Deposit tracers and randoms onto a cubic FFT grid (Default : CIC).
 2. Form the weighted overdensity field  F_r = mesh_data - mesh_randoms / alpha,
    where alpha matches the mean densities (random-to-data normalization).
 3. Estimate multipoles in real space using real spherical harmonics Y_l^m

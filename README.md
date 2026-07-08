@@ -160,28 +160,6 @@ pytest -v
 GitHub Actions runs `pytest` on Python 3.9, 3.11, and 3.12 for every push/PR to
 `main` or `master` (see `.github/workflows/ci.yml`).
 
-## Publishing to GitHub
-
-Repository: [github.com/jeongin-moon/MoonPower_Pk](https://github.com/jeongin-moon/MoonPower_Pk)
-
-From the package directory (after creating an empty repo on GitHub if needed):
-
-```bash
-cd pk/mocks/pk_multipoles
-
-# Remote is already set to MoonPower_Pk; verify with:
-git remote -v
-
-git push -u origin main
-```
-
-If the GitHub repo already has commits (e.g. a README created on the website), either merge first or force-push only if you intend to replace them:
-
-```bash
-git pull origin main --rebase   # if the remote has a README commit
-git push -u origin main
-```
-
 ## Citation
 
 If you use this code, please cite the relevant HETDEX paper for FFT power spectrum measurement methodology.

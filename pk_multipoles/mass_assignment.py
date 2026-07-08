@@ -6,6 +6,7 @@ The kernels deposit discrete particles onto a periodic cubic grid:
 - **NGP** (nearest grid point): fastest, most aliasing.
 - **CIC** (cloud-in-cell): linear interpolation to 2^3 neighbors.
 - **TSC** (triangular shaped cloud): quadratic spline, wider stencil.
+- Default is **CIC**. **NGP** and **TSC** will be uploaded later.
 
 Weighted variants (``*_w``) multiply each deposit by a per-particle weight.
 In this analysis weights are typically ``1 / N_overlap`` to correct for
@@ -14,17 +15,12 @@ duplicated randoms in overlapping masked regions.
 
 import numpy as np
 
-from useful_functions import cic, cic_w, ngp, ngp_w, tsc, tsc_w
+from useful_functions import cic, cic_w
 
 ASSIGNMENT_KERNELS = {
-    "ngp": ngp,
     "cic": cic,
-    "tsc": tsc,
-    "ngp_w": ngp_w,
-    "cic_w": cic_w,
-    "tsc_w": tsc_w,
+    "cic_w": cic_w
 }
-
 
 def assign_to_mesh(positions, h_grid, nmesh, scheme, weights=None):
     """

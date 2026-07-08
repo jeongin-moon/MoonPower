@@ -184,5 +184,4 @@ git push -u origin main
 
 ## Citation
 
-If you use this code, please cite the relevant HETDEX / Uchuu mock papers and
-Jing (2005, ApJ 620, 559) for FFT power spectrum measurement methodology.
+If you use this code, please cite the relevant HETDEX paper for FFT power spectrum measurement methodology.

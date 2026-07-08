@@ -27,13 +27,13 @@ def _axis_shot_factor(scheme, k_axis, h_grid):
     Formulas from Jing (2005) / arXiv:2403.13561 (eq. 2.8).
     """
     x = h_grid / 2.0 * k_axis
-    if scheme == "ngp":
-        return np.ones_like(x)
+#    if scheme == "ngp":
+#        return np.ones_like(x)
     if scheme == "cic":
         return 1.0 - (2.0 / 3.0) * np.sin(x) ** 2
-    if scheme == "tsc":
-        sx = np.sin(x)
-        return 1.0 - sx**2 + (2.0 / 15.0) * sx**4
+#    if scheme == "tsc":
+#        sx = np.sin(x)
+#        return 1.0 - sx**2 + (2.0 / 15.0) * sx**4
     raise ValueError(f"Unknown assignment scheme: {scheme!r}")
 
 
@@ -56,7 +56,7 @@ def window_function_squared(kx, ky, kz, h_grid):
     """
     Product of per-axis assignment window functions W_i(k_i).
 
-    For CIC/TSC/NGP the continuous assignment kernel Fourier transform is
+    For the continuous assignment kernel Fourier transform is
     sinc(k H / (2 pi)) per axis (numpy ``sinc`` convention). The code stores
     the product W = W_x W_y W_z; deconvolution uses W^4 for two assigned fields.
     """

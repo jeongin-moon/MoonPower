@@ -58,6 +58,39 @@ def cic(double[:, :, :] mesh, double[:, :] pos, double H_grid, int Nmesh):
 
     return mesh
 
+def cic_w(double[:, :, :] mesh, double[:, :] pos, double[:] weights, double H_grid, int Nmesh):
+    """Cloud-in-cell assignment with per-particle weights."""
+    cdef int i, a, b, c, aa, bb, cc
+    cdef double[:, :] nn = np.zeros((3, 3))
+    cdef int pos_length = pos.shape[0]
+
+    for j in range(pos_length):
+        x = pos[j]
+        weight = weights[j]
+        nn = np.zeros((3, 3))
+        for i in range(3):
+            dist_1 = abs(x[i] - (H_grid * (x[i] // H_grid - 1) + 0.5 * H_grid))
+            dist_2 = abs(x[i] - (H_grid * (x[i] // H_grid + 1) + 0.5 * H_grid))
+            dist = abs(x[i] - (H_grid * (x[i] // H_grid) + 0.5 * H_grid))
+            nn[i, 1] = 1 - dist / H_grid
+            if dist_1 < H_grid:
+                nn[i, 0] = 1 - dist_1 / H_grid
+            elif dist_2 < H_grid:
+                nn[i, 2] = 1 - dist_2 / H_grid
+
+        for a in range(3):
+            for b in range(3):
+                for c in range(3):
+                    aa = int(x[0] / H_grid) + a - 1
+                    bb = int(x[1] / H_grid) + b - 1
+                    cc = int(x[2] / H_grid) + c - 1
+                    aa = (aa + Nmesh) % Nmesh
+                    bb = (bb + Nmesh) % Nmesh
+                    cc = (cc + Nmesh) % Nmesh
+                    mesh[aa, bb, cc] += weight * nn[0, a] * nn[1, b] * nn[2, c]
+
+    return mesh
+
 def get_real_Ylm(l, m):
     """Symbolic Y_lm converted to Cartesian unit-vector form (legacy; see harmonics.py)."""
     l = int(l); m = int(m)
@@ -92,35 +125,3 @@ def get_real_Ylm(l, m):
 
     return Ylm
 
-def cic_w(double[:, :, :] mesh, double[:, :] pos, double[:] weights, double H_grid, int Nmesh):
-    """Cloud-in-cell assignment with per-particle weights."""
-    cdef int i, a, b, c, aa, bb, cc
-    cdef double[:, :] nn = np.zeros((3, 3))
-    cdef int pos_length = pos.shape[0]
-
-    for j in range(pos_length):
-        x = pos[j]
-        weight = weights[j]
-        nn = np.zeros((3, 3))
-        for i in range(3):
-            dist_1 = abs(x[i] - (H_grid * (x[i] // H_grid - 1) + 0.5 * H_grid))
-            dist_2 = abs(x[i] - (H_grid * (x[i] // H_grid + 1) + 0.5 * H_grid))
-            dist = abs(x[i] - (H_grid * (x[i] // H_grid) + 0.5 * H_grid))
-            nn[i, 1] = 1 - dist / H_grid
-            if dist_1 < H_grid:
-                nn[i, 0] = 1 - dist_1 / H_grid
-            elif dist_2 < H_grid:
-                nn[i, 2] = 1 - dist_2 / H_grid
-
-        for a in range(3):
-            for b in range(3):
-                for c in range(3):
-                    aa = int(x[0] / H_grid) + a - 1
-                    bb = int(x[1] / H_grid) + b - 1
-                    cc = int(x[2] / H_grid) + c - 1
-                    aa = (aa + Nmesh) % Nmesh
-                    bb = (bb + Nmesh) % Nmesh
-                    cc = (cc + Nmesh) % Nmesh
-                    mesh[aa, bb, cc] += weight * nn[0, a] * nn[1, b] * nn[2, c]
-
-    return mesh

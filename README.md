@@ -6,7 +6,7 @@ scripts used for HETDEX OII V-lim mock validation.
 
 ## Features
 
-- Mass assignment: **NGP**, **CIC**, **TSC** (weighted and unweighted via `*_w` kernels)
+- Mass assignment: **CIC** (weighted and unweighted via `*_w` kernels)
 - Overlap-weighted deposition (`1/N_overlap`) for masked / duplicated randoms
 - Real-space Y_lm method for quadrupole and hexadecapole estimation
 - Shot-noise and window-function deconvolution (Jing 2005; scheme-dependent)

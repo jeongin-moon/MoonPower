@@ -11,40 +11,12 @@ Schemes
 ngp  : nearest grid point (1 or 1/8 cell corners when on cell boundaries)
 cic  : cloud-in-cell, linear weights to 2x2x2 neighbors
 tsc  : triangular shaped cloud, quadratic B-spline over 3x3x3 neighbors
+Default is cic. ngp and tsc will be uploaded later.
 
 Weighted variants (ngp_w, cic_w, tsc_w) multiply each deposit by weights[j].
 """
 import numpy as np
 import sympy as sp
-
-def ngp(double[:, :, :] mesh, double[:,:] pos, double H_grid, int Nmesh):
-    """Nearest-grid-point assignment (unweighted)."""
-
-    cdef int i, a, b, c, aa, bb, cc
-    cdef double[:] nn = np.zeros(3)
-    cdef int pos_length = pos.shape[0]
-
-    for j in range(pos_length):
-        x = pos[j]
-        nn[0] = nn[1] = nn[2] = 0.0
-        for i in range(3):
-            if x[i]%H_grid == 0.0:
-                nn[i]+=1
-        for a in range(int(nn[0]+1)):
-            for b in range(int(nn[1]+1)):
-                for c in range(int(nn[2]+1)):
-                    aa = int(x[0]//H_grid)-a
-                    bb = int(x[1]//H_grid)-b
-                    cc = int(x[2]//H_grid)-c
-                    if aa == Nmesh:
-                        aa = 0
-                    if bb == Nmesh:
-                        bb = 0
-                    if cc == Nmesh:
-                        cc = 0
-                    mesh[aa,bb,cc] += 0.5**sum(nn)
-                    
-    return mesh
 
 def cic(double[:, :, :] mesh, double[:, :] pos, double H_grid, int Nmesh):
     """Cloud-in-cell assignment: linear interpolation to 8 neighbors."""
@@ -86,42 +58,6 @@ def cic(double[:, :, :] mesh, double[:, :] pos, double H_grid, int Nmesh):
 
     return mesh
 
-def tsc(double[:, :, :] mesh, double[:, :] pos, double H_grid, int Nmesh):
-    """Triangular shaped cloud: quadratic spline over 27 neighbors."""
-    cdef int i, a, b, c, aa, bb, cc
-    cdef double[:, :] nn = np.zeros((3, 3))
-    cdef int pos_length = pos.shape[0]
-
-    for j in range(pos_length):
-        x = pos[j]
-        nn = np.zeros((3, 3))
-        for i in range(3):
-            dist_1 = abs(x[i] - (H_grid * (x[i] // H_grid - 1) + 0.5 * H_grid))
-            dist_2 = abs(x[i] - (H_grid * (x[i] // H_grid + 1) + 0.5 * H_grid))
-            dist = abs(x[i] - (H_grid * (x[i] // H_grid) + 0.5 * H_grid))
-            nn[i, 1] = 0.75 - (dist / H_grid) ** 2
-            if H_grid / 2 <= dist_1 < 1.5 * H_grid:
-                nn[i, 0] = 0.5 * (1.5 - dist_1 / H_grid) ** 2
-            if H_grid / 2 <= dist_2 < 1.5 * H_grid:
-                nn[i, 2] = 0.5 * (1.5 - dist_2 / H_grid) ** 2
-
-        for a in range(3):
-            for b in range(3):
-                for c in range(3):
-                    aa = int(x[0] / H_grid) + a - 1
-                    bb = int(x[1] / H_grid) + b - 1
-                    cc = int(x[2] / H_grid) + c - 1
-
-                    # Apply periodic boundary conditions
-                    aa = (aa + Nmesh) % Nmesh
-                    bb = (bb + Nmesh) % Nmesh
-                    cc = (cc + Nmesh) % Nmesh
-
-                    # Add the weighted contribution to the mesh
-                    mesh[aa, bb, cc] += nn[0, a] * nn[1, b] * nn[2, c]
-    
-    return mesh
-
 def get_real_Ylm(l, m):
     """Symbolic Y_lm converted to Cartesian unit-vector form (legacy; see harmonics.py)."""
     l = int(l); m = int(m)
@@ -156,35 +92,6 @@ def get_real_Ylm(l, m):
 
     return Ylm
 
-def ngp_w(double[:, :, :] mesh, double[:,:] pos, double[:] weights, double H_grid, int Nmesh):
-    """Nearest-grid-point assignment with per-particle weights."""
-    cdef int i, a, b, c, aa, bb, cc
-    cdef double[:] nn = np.zeros(3)
-    cdef int pos_length = pos.shape[0]
-
-    for j in range(pos_length):
-        x = pos[j]
-        weight = weights[j]
-        nn[0] = nn[1] = nn[2] = 0.0
-        for i in range(3):
-            if x[i]%H_grid == 0.0:
-                nn[i]+=1
-        for a in range(int(nn[0]+1)):
-            for b in range(int(nn[1]+1)):
-                for c in range(int(nn[2]+1)):
-                    aa = int(x[0]//H_grid)-a
-                    bb = int(x[1]//H_grid)-b
-                    cc = int(x[2]//H_grid)-c
-                    if aa == Nmesh:
-                        aa = 0
-                    if bb == Nmesh:
-                        bb = 0
-                    if cc == Nmesh:
-                        cc = 0
-                    mesh[aa,bb,cc] += weight * (0.5**sum(nn))
-
-    return mesh
-
 def cic_w(double[:, :, :] mesh, double[:, :] pos, double[:] weights, double H_grid, int Nmesh):
     """Cloud-in-cell assignment with per-particle weights."""
     cdef int i, a, b, c, aa, bb, cc
@@ -217,37 +124,3 @@ def cic_w(double[:, :, :] mesh, double[:, :] pos, double[:] weights, double H_gr
                     mesh[aa, bb, cc] += weight * nn[0, a] * nn[1, b] * nn[2, c]
 
     return mesh
-
-def tsc_w(double[:, :, :] mesh, double[:, :] pos, double[:] weights, double H_grid, int Nmesh):
-    """Triangular shaped cloud assignment with per-particle weights."""
-    cdef int i, a, b, c, aa, bb, cc
-    cdef double[:, :] nn = np.zeros((3, 3))
-    cdef int pos_length = pos.shape[0]
-
-    for j in range(pos_length):
-        x = pos[j]
-        weight = weights[j]
-        nn = np.zeros((3, 3))
-        for i in range(3):
-            dist_1 = abs(x[i] - (H_grid * (x[i] // H_grid - 1) + 0.5 * H_grid))
-            dist_2 = abs(x[i] - (H_grid * (x[i] // H_grid + 1) + 0.5 * H_grid))
-            dist = abs(x[i] - (H_grid * (x[i] // H_grid) + 0.5 * H_grid))
-            nn[i, 1] = 0.75 - (dist / H_grid) ** 2
-            if H_grid / 2 <= dist_1 < 1.5 * H_grid:
-                nn[i, 0] = 0.5 * (1.5 - dist_1 / H_grid) ** 2
-            if H_grid / 2 <= dist_2 < 1.5 * H_grid:
-                nn[i, 2] = 0.5 * (1.5 - dist_2 / H_grid) ** 2
-
-        for a in range(3):
-            for b in range(3):
-                for c in range(3):
-                    aa = int(x[0] / H_grid) + a - 1
-                    bb = int(x[1] / H_grid) + b - 1
-                    cc = int(x[2] / H_grid) + c - 1
-                    aa = (aa + Nmesh) % Nmesh
-                    bb = (bb + Nmesh) % Nmesh
-                    cc = (cc + Nmesh) % Nmesh
-                    mesh[aa, bb, cc] += weight * nn[0, a] * nn[1, b] * nn[2, c]
-
-    return mesh
-

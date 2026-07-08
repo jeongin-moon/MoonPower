@@ -2,7 +2,7 @@
 
 Estimate deconvolved power spectrum multipoles (P0, P2, P4) from discrete tracer
 and random catalogs on a periodic FFT grid. This package generalizes the analysis
-scripts used for HETDEX OII V-lim power spectrum calculation.
+scripts used for HETDEX OII volume-limited sample power spectrum calculation.
 
 ## Features
 

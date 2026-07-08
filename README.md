@@ -1,8 +1,8 @@
-# pk-multipoles
+# MoonPower
 
 Estimate deconvolved power spectrum multipoles (P0, P2, P4) from discrete tracer
 and random catalogs on a periodic FFT grid. This package generalizes the analysis
-scripts used for HETDEX OII V-lim mock validation.
+scripts used for HETDEX OII V-lim power spectrum calculation.
 
 ## Features
 
@@ -59,9 +59,7 @@ pk-multipoles \
 
 | Flag | Kernel | Notes |
 |------|--------|-------|
-| `--assignment ngp` | `ngp_w` / `ngp` | Nearest grid point |
 | `--assignment cic` | `cic_w` / `cic` | Cloud-in-cell (default) |
-| `--assignment tsc` | `tsc_w` / `tsc` | Triangular shaped cloud |
 
 Add `--no-overlap-weights` to use the unweighted kernels.
 
@@ -137,7 +135,7 @@ Each module has a module-level docstring explaining its role. The core
 algorithm lives in `pk_multipoles/spectrum.py`:
 
 1. **Mass assignment** (`mass_assignment.py` → `useful_functions.pyx`): deposit
-   particles on a periodic grid (NGP / CIC / TSC).
+   particles on a periodic grid (CIC).
 2. **Overdensity** (`spectrum.py`): `F_r = mesh_data - mesh_randoms / alpha`,
    with `alpha` matching mean densities.
 3. **Multipoles** (`spectrum.py` + `harmonics.py`): multiply `F_r` by

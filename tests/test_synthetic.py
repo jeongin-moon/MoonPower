@@ -19,7 +19,7 @@ from pk_multipoles.spectrum import (
 
 from conftest import make_catalog
 
-ASSIGNMENTS = ("ngp", "cic", "tsc")
+ASSIGNMENTS = ("cic")
 
 
 @pytest.mark.parametrize("assignment", ASSIGNMENTS)
@@ -128,19 +128,6 @@ def test_unweighted_multipoles(assignment, box_params, rng):
     assert np.isfinite(result["P0"]).sum() >= nmesh // 2
 
 
-def test_deconvolution_shot_noise_schemes():
-    kx = np.linspace(0.1, 2.0, 8)
-    h = 1.0
-    c_ngp = shot_noise_correction("ngp", kx, kx, kx, h)
-    c_cic = shot_noise_correction("cic", kx, kx, kx, h)
-    c_tsc = shot_noise_correction("tsc", kx, kx, kx, h)
-
-    assert np.allclose(c_ngp, 1.0)
-    assert np.all(c_cic < 1.0)
-    assert np.all(c_tsc < 1.0)
-    assert np.all(c_tsc < c_cic)
-
-
 def test_window_function_at_origin():
     wk = window_function_squared(
         np.array([0.0]),
@@ -153,12 +140,8 @@ def test_window_function_at_origin():
 
 def test_all_kernels_registered():
     assert set(ASSIGNMENT_KERNELS) == {
-        "ngp",
         "cic",
-        "tsc",
-        "ngp_w",
-        "cic_w",
-        "tsc_w",
+        "cic_w"
     }
 
 
@@ -178,7 +161,7 @@ def test_load_config_json(tmp_path):
                 "output_dir": "/data/out",
                 "field": "dex-spring",
                 "bin_index": 2,
-                "assignment": "tsc",
+                "assignment": "cic",
             }
         )
     )

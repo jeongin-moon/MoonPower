@@ -10,13 +10,12 @@ For a discrete sample of N particles, Jing (2005) shows that the raw FFT estimat
 
 where k_N = pi / H is the Nyquist wavenumber. The code uses the leading alias
 approximation for the shot-noise correction C(k) and divides the monopole by
-W(k)^4 because both the data and random fields are assigned (cross-correlation
-of two assigned fields).
+W(k)^4.
 """
 
 import numpy as np
 
-ASSIGNMENT_SCHEMES = ("ngp", "cic", "tsc")
+ASSIGNMENT_SCHEMES = ("cic")
 
 
 def _axis_shot_factor(scheme, k_axis, h_grid):
@@ -27,13 +26,8 @@ def _axis_shot_factor(scheme, k_axis, h_grid):
     Formulas from Jing (2005) / arXiv:2403.13561 (eq. 2.8).
     """
     x = h_grid / 2.0 * k_axis
-#    if scheme == "ngp":
-#        return np.ones_like(x)
     if scheme == "cic":
         return 1.0 - (2.0 / 3.0) * np.sin(x) ** 2
-#    if scheme == "tsc":
-#        sx = np.sin(x)
-#        return 1.0 - sx**2 + (2.0 / 15.0) * sx**4
     raise ValueError(f"Unknown assignment scheme: {scheme!r}")
 
 
